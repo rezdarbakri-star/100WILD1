@@ -3,88 +3,214 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>100 WILD — Red Bull × Rezdar</title>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{background:#0a0a0a;overflow-x:hidden}
-</style>
+<title>100 WILD — Rezdar × Red Bull × Revolution Race</title>
+<meta name="description" content="100 WILD — En expeditionsserie genom världens mest extrema miljöer. Pokémon möter Bear Grylls.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+<style>body{margin:0;background:#0a0a0a}</style>
 </head>
 <body>
 <div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
 
+/* ═══════════════════════════════════════════════════════════════
+   DATA
+   ═══════════════════════════════════════════════════════════════ */
 const RED = "#e3000f";
 const DARK = "#0a0a0a";
 
-const CAUGHT_CREATURES = ["Isbjörn","Arctic Fox","Caiman","Lejon","Elefant","Giraff","Silverback Gorilla","Schimpans"];
-const UNLOCKED_SKILLS = ["Dykning","Kajak","Trekking","Bergsklättring","Camping","Fallskärmshoppning","Expedition","Spårning"];
-
-const EXPEDITION_PHOTOS = [
-  { src: "images/arctic.jpg", back: "ARKTIS", color: "#7ec8e3", grad: "linear-gradient(135deg, #0d1b2a, #1b3a5c)" },
-  { src: "images/savanna.jpg", back: "DJUNGELN", color: "#4caf50", grad: "linear-gradient(135deg, #1b3a1f, #2e5e2e)" },
-  { src: "images/ocean.jpg", back: "HAVET", color: "#039be5", grad: "linear-gradient(135deg, #0a1628, #1a3a5c)" },
-  { src: "images/desert.jpg", back: "SAHARA", color: "#ffc107", grad: "linear-gradient(135deg, #2e1a00, #5c3a00)" },
-  { src: "images/amazon.jpg", back: "AMAZONAS", color: "#81c784", grad: "linear-gradient(135deg, #0a1e0a, #2e5e2e)" },
-];
-
 const BIOME_THEMES = {
   hero:    { bg: "#0a0a0a", accent: RED, particle: RED, glow: "rgba(227,0,15,0.06)" },
-  format:  { bg: "#0a0a0a", accent: RED, particle: "#ff4444", glow: "rgba(227,0,15,0.07)" },
+  concept: { bg: "#0a0a0a", accent: RED, particle: "#ff4444", glow: "rgba(227,0,15,0.05)" },
   arctic:  { bg: "#060d14", accent: "#7ec8e3", particle: "#c8e6f0", glow: "rgba(126,200,227,0.06)" },
   amazon:  { bg: "#050e06", accent: "#4caf50", particle: "#81c784", glow: "rgba(76,175,80,0.06)" },
   savanna: { bg: "#0e0904", accent: "#ff9800", particle: "#ffb74d", glow: "rgba(255,152,0,0.06)" },
+  ocean:   { bg: "#040a14", accent: "#039be5", particle: "#4fc3f7", glow: "rgba(3,155,229,0.06)" },
   skills:  { bg: "#0a0a0a", accent: RED, particle: "#ff4444", glow: "rgba(227,0,15,0.06)" },
+  species: { bg: "#0a0a0a", accent: "#f59e0b", particle: "#fbbf24", glow: "rgba(245,158,11,0.05)" },
+  anim:    { bg: "#0a0a0a", accent: "#8b5cf6", particle: "#a78bfa", glow: "rgba(139,92,246,0.05)" },
   stats:   { bg: "#0a0a0a", accent: RED, particle: RED, glow: "rgba(227,0,15,0.06)" },
+  brand:   { bg: "#0a0a0a", accent: RED, particle: "#ff4444", glow: "rgba(227,0,15,0.05)" },
   cta:     { bg: "#0a0a0a", accent: RED, particle: "#ff4444", glow: "rgba(227,0,15,0.08)" },
 };
 
-const BIOMES = [
-  { id: "arctic", name: "ARKTIS", icon: "❄️", color: "#7ec8e3", creatures: [
-    { name: "Isbjörn", icon: "🐻‍❄️", id: "001" }, { name: "Arctic Fox", icon: "🦊", id: "002" },
-    { name: "Narval", icon: "🦄", id: "003", locked: true }, { name: "Valross", icon: "🦭", id: "004", locked: true },
-    { name: "Snöleopard", icon: "🐆", id: "005", locked: true }, { name: "???", icon: "❓", id: "006", mystery: true },
-  ] },
-  { id: "amazon", name: "AMAZONAS", icon: "🌿", color: "#4caf50", creatures: [
-    { name: "Caiman", icon: "🐊", id: "007" }, { name: "Jaguar", icon: "🐆", id: "008", locked: true },
-    { name: "Anakonda", icon: "🐍", id: "009", locked: true }, { name: "Giftgroda", icon: "🐸", id: "010", locked: true },
-    { name: "Ara", icon: "🦜", id: "011", locked: true }, { name: "???", icon: "❓", id: "012", mystery: true },
-  ] },
-  { id: "savanna", name: "SAVANN", icon: "🌅", color: "#ff9800", creatures: [
-    { name: "Lejon", icon: "🦁", id: "013" }, { name: "Elefant", icon: "🐘", id: "014" },
-    { name: "Giraff", icon: "🦒", id: "015" }, { name: "Silverback Gorilla", icon: "🦍", id: "016" },
-    { name: "Schimpans", icon: "🐒", id: "017" }, { name: "Gepard", icon: "🐆", id: "018", locked: true },
-    { name: "???", icon: "❓", id: "019", mystery: true },
-  ] },
+const BIOMES_SHOWCASE = [
+  { name: "ARKTIS", icon: "❄️", color: "#7ec8e3", themeId: "arctic",
+    photo: "images/arctic.jpg", grad: "linear-gradient(135deg, #0d1b2a, #1b3a5c)",
+    tagline: "–40°C. Isbjörnsterritorium.",
+    desc: "Svalbard, norska Arktis. Spåra isbjörnar och polarrävar över glaciärer och packis. Minimal utrustning, maximalt fokus.",
+    dangers: ["Isbjörn", "Hypotermisk kyla", "Isbrott", "Polarmörker"],
+    terrain: "Glaciärer · Packis · Tundra",
+    creatures: [
+      { name: "Isbjörn", icon: "🐻‍❄️", caught: true }, { name: "Arctic Fox", icon: "🦊", caught: true },
+      { name: "Narval", icon: "🦄", caught: false }, { name: "Valross", icon: "🦭", caught: false },
+      { name: "Snöleopard", icon: "🐆", caught: false }, { name: "???", icon: "❓", mystery: true },
+    ]},
+  { name: "AMAZONAS", icon: "🌿", color: "#4caf50", themeId: "amazon",
+    photo: "images/amazon.jpg", grad: "linear-gradient(135deg, #0a1e0a, #2e5e2e)",
+    tagline: "50 timmar. Ingen väg ut.",
+    desc: "Brasiliens djungel. Världens mest artrika ekosystem — caimaner, jaguarer, giftgrodor. Navigering utan stigar, sömn i hängmatta över vattnet.",
+    dangers: ["Jaguarer", "Anakondor", "Giftiga arter", "Orientering"],
+    terrain: "Regnskog · Floder · Mangrove",
+    creatures: [
+      { name: "Caiman", icon: "🐊", caught: true }, { name: "Jaguar", icon: "🐆", caught: false },
+      { name: "Anakonda", icon: "🐍", caught: false }, { name: "Giftgroda", icon: "🐸", caught: false },
+      { name: "Ara", icon: "🦜", caught: false }, { name: "???", icon: "❓", mystery: true },
+    ]},
+  { name: "SAHARA", icon: "🏜️", color: "#f97316", themeId: "savanna",
+    photo: "images/desert.jpg", grad: "linear-gradient(135deg, #2e1a00, #5c3a00)",
+    tagline: "Världens största öken. Inget vatten. Ingen skugga.",
+    desc: "Marocko till Mauretanien. 50°C, begränsat vatten, noll infrastruktur. Ökenrävar, skorpioner och en stillhet som sätter mental uthållighet på prov.",
+    dangers: ["Dehydrering", "Sandstorm", "Skorpioner", "Nattkyla"],
+    terrain: "Sanddyner · Klippöken · Oaser",
+    creatures: [
+      { name: "Ökenräv", icon: "🦊", caught: false }, { name: "Skorpion", icon: "🦂", caught: false },
+      { name: "Dromedar", icon: "🐪", caught: false }, { name: "???", icon: "❓", mystery: true },
+    ]},
 ];
 
-const SKILL_TREES = [
-  { id: "water", name: "VATTEN", icon: "🌊", color: "#039be5", skills: [
-    { name: "Dykning", icon: "🤿", id: "S01" }, { name: "Kajak", icon: "🛶", id: "S02" },
-    { name: "Klippdykning", icon: "🏊", id: "S03", locked: true }, { name: "???", icon: "❓", id: "S04", mystery: true },
-  ] },
-  { id: "land", name: "TERRA", icon: "⛰️", color: "#ff9800", skills: [
-    { name: "Trekking", icon: "🥾", id: "S05" }, { name: "Bergsklättring", icon: "🧗", id: "S06" },
-    { name: "Camping", icon: "🏕️", id: "S07" }, { name: "Spårning", icon: "🐾", id: "S08" },
-    { name: "Bikepacking", icon: "🚴", id: "S09", locked: true }, { name: "???", icon: "❓", id: "S10", mystery: true },
-  ] },
-  { id: "extreme", name: "EXTREM", icon: "⚡", color: RED, skills: [
-    { name: "Fallskärmshoppning", icon: "🪂", id: "S11" }, { name: "Expedition", icon: "🗺️", id: "S12" },
-    { name: "Överlevnad", icon: "🔥", id: "S13", locked: true }, { name: "Wingsuit", icon: "🦅", id: "S14", locked: true },
-    { name: "???", icon: "❓", id: "S15", mystery: true },
-  ] },
+const SKILL_CATEGORIES = [
+  { name: "VATTEN", icon: "🌊", color: "#039be5", skills: [
+    { name: "Dykning", icon: "🤿", active: true }, { name: "Kajak", icon: "🛶", active: true },
+    { name: "Klippdykning", icon: "🏊", active: false }, { name: "???", icon: "❓", mystery: true },
+  ]},
+  { name: "TERRA", icon: "⛰️", color: "#ff9800", skills: [
+    { name: "Trekking", icon: "🥾", active: true }, { name: "Bergsklättring", icon: "🧗", active: true },
+    { name: "Camping", icon: "🏕️", active: true }, { name: "Spårning", icon: "🐾", active: true },
+    { name: "Bikepacking", icon: "🚴", active: false }, { name: "???", icon: "❓", mystery: true },
+  ]},
+  { name: "EXTREM", icon: "⚡", color: RED, skills: [
+    { name: "Fallskärm", icon: "🪂", active: true }, { name: "Expedition", icon: "🗺️", active: true },
+    { name: "Överlevnad", icon: "🔥", active: false }, { name: "Wingsuit", icon: "🦅", active: false },
+    { name: "???", icon: "❓", mystery: true },
+  ]},
 ];
 
-const totalCreatures = BIOMES.reduce((a, b) => a + b.creatures.length, 0);
-const caughtCount = BIOMES.reduce((a, b) => a + b.creatures.filter(c => CAUGHT_CREATURES.includes(c.name)).length, 0);
-const totalSkills = SKILL_TREES.reduce((a, b) => a + b.skills.length, 0);
-const unlockedCount = SKILL_TREES.reduce((a, b) => a + b.skills.filter(s => UNLOCKED_SKILLS.includes(s.name)).length, 0);
+const BIOMES_CREATURES = [
+  { name: "ARKTIS", icon: "❄️", color: "#7ec8e3", themeId: "arctic", creatures: [
+    { name: "Isbjörn", icon: "🐻‍❄️", caught: true }, { name: "Arctic Fox", icon: "🦊", caught: true },
+    { name: "Narval", icon: "🦄", caught: false }, { name: "Valross", icon: "🦭", caught: false },
+    { name: "Snöleopard", icon: "🐆", caught: false }, { name: "???", icon: "❓", mystery: true },
+  ]},
+  { name: "AMAZONAS", icon: "🌿", color: "#4caf50", themeId: "amazon", creatures: [
+    { name: "Caiman", icon: "🐊", caught: true }, { name: "Jaguar", icon: "🐆", caught: false },
+    { name: "Anakonda", icon: "🐍", caught: false }, { name: "Giftgroda", icon: "🐸", caught: false },
+    { name: "Ara", icon: "🦜", caught: false }, { name: "???", icon: "❓", mystery: true },
+  ]},
+  { name: "SAVANN", icon: "🌅", color: "#ff9800", themeId: "savanna", creatures: [
+    { name: "Lejon", icon: "🦁", caught: true }, { name: "Elefant", icon: "🐘", caught: true },
+    { name: "Giraff", icon: "🦒", caught: true }, { name: "Gorilla", icon: "🦍", caught: true },
+    { name: "Schimpans", icon: "🐒", caught: true }, { name: "Gepard", icon: "🐆", caught: false },
+    { name: "???", icon: "❓", mystery: true },
+  ]},
+];
 
-/* ───── Reusable Components ───── */
+const CATCH_DEMO = [
+  { name: "Jaguar", icon: "🐆", rarity: "LEGENDARY", location: "Amazonas, Brazil", ep: "EP 04" },
+  { name: "Isbjörn", icon: "🐻‍❄️", rarity: "EPIC", location: "Svalbard, Norway", ep: "EP 23" },
+  { name: "Gorilla", icon: "🦍", rarity: "LEGENDARY", location: "Bwindi, Uganda", ep: "EP 19" },
+];
+
+const RARITY = {
+  RARE: { color: "#8b5cf6", accent: "#a78bfa", glow: "rgba(139,92,246,0.4)", label: "RARE ENCOUNTER" },
+  EPIC: { color: "#f59e0b", accent: "#fbbf24", glow: "rgba(245,158,11,0.4)", label: "EXCEPTIONAL FIND" },
+  LEGENDARY: { color: "#ef4444", accent: "#f87171", glow: "rgba(239,68,68,0.4)", label: "LEGENDARY SIGHTING" },
+};
+
+const BRANDS = [
+  { name: "RED BULL", color: "#e3000f", tagline: "GIVES YOU WINGS",
+    points: [
+      "Varje avsnitt är en fysisk och mental utmaning — en naturlig matchning",
+      "Integration i camp-setups, expeditionsstarter och recovery-moment",
+      "Multi-platform: YouTube-avsnitt, TikTok-klipp, Instagram behind-the-scenes",
+    ]},
+  { name: "REVOLUTION RACE", color: "#4caf50", tagline: "GEAR THAT SURVIVES THE WILD",
+    points: [
+      "Produkten syns i varje bildruta — inte som reklam, utan som utrustning som används",
+      "Arktis, Amazonas, Sahara — kläder som testas i verkliga förhållanden",
+      "\"Vad hade Rezdar på sig?\"-content som driver köpintention",
+    ]},
+];
+
+const EXPEDITION_PHOTOS = [
+  { src: "images/arctic.jpg", label: "ARKTIS", icon: "❄️", color: "#7ec8e3", grad: "linear-gradient(135deg, #0d1b2a, #1b3a5c)" },
+  { src: "images/amazon.jpg", label: "AMAZONAS", icon: "🌿", color: "#81c784", grad: "linear-gradient(135deg, #0a1e0a, #2e5e2e)" },
+  { src: "images/ocean.jpg", label: "HAVET", icon: "🌊", color: "#039be5", grad: "linear-gradient(135deg, #0a1628, #1a3a5c)" },
+  { src: "images/desert.jpg", label: "SAHARA", icon: "🏜️", color: "#ffc107", grad: "linear-gradient(135deg, #2e1a00, #5c3a00)" },
+  { src: "images/savanna.jpg", label: "AFRIKA", icon: "🌅", color: "#ff9800", grad: "linear-gradient(135deg, #1a0e04, #3d2410)" },
+];
+
+const caughtTotal = BIOMES_SHOWCASE.reduce((a, b) => a + b.creatures.filter(c => c.caught).length, 0);
+const totalActive = SKILL_CATEGORIES.reduce((a, b) => a + b.skills.filter(s => s.active).length, 0);
+
+/* ═══════════════════════════════════════════════════════════════
+   STYLES
+   ═══════════════════════════════════════════════════════════════ */
+const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:#0a0a0a;overflow-x:hidden}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes cardPop{from{opacity:0;transform:scale(.85) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+  @keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+  @keyframes glitchShake{0%{transform:translate(0)}20%{transform:translate(-3px,2px)}40%{transform:translate(3px,-2px)}60%{transform:translate(-2px,1px)}80%{transform:translate(2px,-1px)}100%{transform:translate(0)}}
+  @keyframes catchPop{0%{opacity:0;transform:scale(.88) translateY(12px)}70%{transform:scale(1.02) translateY(-2px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+  @keyframes flashBang{0%{opacity:0}18%{opacity:.5}100%{opacity:0}}
+  @keyframes glowIn{0%{opacity:0}30%{opacity:.5}100%{opacity:.15}}
+  @keyframes iconBounce{0%{opacity:0;transform:scale(0)}50%{transform:scale(1.25)}75%{transform:scale(.95)}100%{opacity:1;transform:scale(1)}}
+  @keyframes ringReveal{from{opacity:0}to{opacity:.5}}
+  @keyframes ringSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  @keyframes iconPulse{0%,100%{opacity:0;transform:scale(1)}50%{opacity:.2;transform:scale(1.2)}}
+  @keyframes scanAnim{0%{opacity:.9;top:0}100%{opacity:0;top:100%}}
+  @keyframes barFill{from{width:0}to{width:var(--fill)}}
+
+  .glitch{display:block;position:relative;transition:text-shadow .3s}
+  .glitch:hover{animation:glitchShake .3s;text-shadow:3px 0 ${RED},-3px 0 rgba(0,255,255,.4)!important}
+  .cc{transition:transform .3s}.cc:hover{transform:scale(1.04)}
+  .exp-card{transition:transform .3s}.exp-card:hover{transform:translateY(-4px)}
+
+  @media(max-width:768px){
+    .biome-layout{grid-template-columns:1fr!important}
+    .biome-grid{grid-template-columns:1fr!important}
+    .brand-grid{grid-template-columns:1fr!important}
+    .catch-row{grid-template-columns:1fr!important}
+    .skill-grid{grid-template-columns:1fr!important}
+    .stats-row{flex-wrap:wrap!important;gap:30px!important}
+  }
+`;
+
+/* ═══════════════════════════════════════════════════════════════
+   UTILITY
+   ═══════════════════════════════════════════════════════════════ */
+function useInView(threshold = 0.2) {
+  const ref = useRef(null);
+  const [vis, setVis] = useState(false);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVis(true); }, { threshold });
+    obs.observe(el); return () => obs.disconnect();
+  }, [threshold]);
+  return [ref, vis];
+}
+
+function Ctr({ target, suffix = "", dur = 1500 }) {
+  const [v, setV] = useState(0);
+  const [ref, vis] = useInView(0.3);
+  const started = useRef(false);
+  useEffect(() => {
+    if (vis && !started.current) {
+      started.current = true; const s = performance.now();
+      const tick = n => { const p = Math.min((n - s) / dur, 1); setV(Math.round((1 - Math.pow(1 - p, 3)) * target)); if (p < 1) requestAnimationFrame(tick); };
+      requestAnimationFrame(tick);
+    }
+  }, [vis, target, dur]);
+  return <span ref={ref}>{v}{suffix}</span>;
+}
 
 function Ring({ pct, color, size = 68, stroke = 3, children }) {
   const r = (size - stroke) / 2, circ = 2 * Math.PI * r;
@@ -101,131 +227,34 @@ function Ring({ pct, color, size = 68, stroke = 3, children }) {
   );
 }
 
-function Ctr({ target, suffix = "", dur = 1500 }) {
-  const [v, setV] = useState(0);
-  const ref = useRef(null);
-  const go = useRef(false);
-  useEffect(() => {
-    const obs = new IntersectionObserver(e => {
-      if (e[0].isIntersecting && !go.current) {
-        go.current = true; const s = performance.now();
-        const tick = n => { const p = Math.min((n - s) / dur, 1); setV(Math.round((1 - Math.pow(1 - p, 3)) * target)); if (p < 1) requestAnimationFrame(tick); };
-        requestAnimationFrame(tick);
-      }
-    }, { threshold: 0.3 });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [target, dur]);
-  return <span ref={ref}>{v}{suffix}</span>;
-}
-
-function Card({ item, color, idx, unlockedList }) {
-  const [flip, setFlip] = useState(false);
-  const active = unlockedList.includes(item.name);
-  return (
-    <div onClick={() => active && setFlip(!flip)} className="cc" style={{
-      perspective: 600, animation: `cardPop 0.4s ease ${idx * 0.05}s both`,
-      cursor: active ? "pointer" : "default",
-    }}>
-      <div style={{ width: "100%", aspectRatio: "3/4", position: "relative", transformStyle: "preserve-3d",
-        transition: "transform 0.5s cubic-bezier(0.4,0,0.2,1)", transform: flip ? "rotateY(180deg)" : "none" }}>
-        {/* Front */}
-        <div style={{
-          position: "absolute", inset: 0, backfaceVisibility: "hidden", borderRadius: 12,
-          background: item.mystery ? "linear-gradient(135deg,#1a1a1a,#222)" : item.locked ? "linear-gradient(135deg,#111,#181818)" : `linear-gradient(135deg, ${color}12, ${color}28)`,
-          border: active ? `2px solid ${color}` : "1px solid rgba(255,255,255,0.05)",
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-          gap: 6, padding: "12px 6px", overflow: "hidden",
-          boxShadow: active ? `0 4px 24px ${color}25` : "none",
-        }}>
-          {active && <div style={{ position: "absolute", top: 6, right: 6, width: 16, height: 16, borderRadius: "50%", background: color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: "bold", color: "#000" }}>✓</div>}
-          {item.locked && <div style={{ position: "absolute", top: 6, right: 6, fontSize: 11, opacity: 0.25 }}>🔒</div>}
-          <div style={{ fontSize: item.mystery ? 24 : 30, filter: item.locked ? "grayscale(1) brightness(0.25)" : "none" }}>{item.icon}</div>
-          <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(10px, 2.5vw, 13px)", letterSpacing: 1.5, color: item.mystery ? "rgba(255,255,255,0.12)" : item.locked ? "rgba(255,255,255,0.18)" : "rgba(255,255,255,0.85)", textAlign: "center", lineHeight: 1.2, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", padding: "0 2px" }}>
-            {item.mystery ? "???" : item.locked ? "LOCKED" : item.name.toUpperCase()}</div>
-          <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 7, letterSpacing: 1, color: active ? color : "rgba(255,255,255,0.12)" }}>#{item.id}</div>
-        </div>
-        {/* Back */}
-        {active && <div style={{
-          position: "absolute", inset: 0, backfaceVisibility: "hidden", transform: "rotateY(180deg)", borderRadius: 12,
-          background: `linear-gradient(135deg, ${color}18, ${color}35)`, border: `2px solid ${color}`,
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, padding: 12,
-        }}>
-          <div style={{ fontSize: 28 }}>{item.icon}</div>
-          <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(11px, 2.5vw, 15px)", letterSpacing: 2, color, textAlign: "center", lineHeight: 1.2 }}>{item.name.toUpperCase()}</div>
-          <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 7, color: "rgba(255,255,255,0.45)", textAlign: "center", lineHeight: 1.6 }}>UNLOCKED ✓</div>
-        </div>}
-      </div>
-    </div>
-  );
-}
-
-function ExpCard({ photo, idx }) {
-  const ref = useRef(null);
-  const [vis, setVis] = useState(false);
-  const [flipped, setFlipped] = useState(false);
-  useEffect(() => {
-    if (!ref.current) return;
-    const obs = new IntersectionObserver(e => { if (e[0].isIntersecting) setVis(true); }, { threshold: 0.1 });
-    obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
-  return (
-    <div ref={ref} className="exp-card" onClick={() => setFlipped(!flipped)} style={{
-      opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(25px)",
-      transition: `opacity 0.6s ease ${0.1 + idx * 0.1}s, transform 0.6s ease ${0.1 + idx * 0.1}s`,
-      flex: "1 1 0", minWidth: 0, perspective: 800, cursor: "pointer",
-    }}>
-      <div style={{ width: "100%", aspectRatio: "3/4", position: "relative", transformStyle: "preserve-3d",
-        transition: "transform 0.6s cubic-bezier(0.4,0,0.2,1)", transform: flipped ? "rotateY(180deg)" : "none" }}>
-        <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", borderRadius: 8, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }}>
-          <div style={{ width: "100%", height: "100%", background: `url(${photo.src}) center/cover` }} />
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 40%)" }} />
-          <div style={{ position: "absolute", top: 10, right: 10, width: 6, height: 6, borderRadius: "50%", background: RED, boxShadow: `0 0 6px ${RED}` }} />
-        </div>
-        <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", transform: "rotateY(180deg)", borderRadius: 8, overflow: "hidden", background: photo.grad, border: `1px solid ${photo.color}40`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
-          <div style={{ position: "absolute", inset: 0, opacity: 0.06, background: `repeating-linear-gradient(0deg, transparent, transparent 3px, ${photo.color} 3px, ${photo.color} 4px)` }} />
-          <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(16px, 3vw, 28px)", letterSpacing: 5, color: photo.color, textShadow: `0 0 30px ${photo.color}40`, position: "relative" }}>{photo.back}</div>
-          <div style={{ width: 20, height: 2, background: photo.color, opacity: 0.5 }} />
-          <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 7, letterSpacing: 2, color: "rgba(255,255,255,0.3)" }}>EXPEDITION</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ───── Atmosphere Canvas ───── */
-
 function Atmosphere({ themeId }) {
   const canvasRef = useRef(null);
   const anim = useRef(null);
-  const pts = useRef([]);
   const theme = BIOME_THEMES[themeId] || BIOME_THEMES.hero;
   useEffect(() => {
     const c = canvasRef.current; if (!c) return;
     const ctx = c.getContext("2d");
     const resize = () => { c.width = c.offsetWidth; c.height = c.offsetHeight; };
     resize(); window.addEventListener("resize", resize);
-    const count = 50;
     const mk = () => {
       const b = { x: Math.random() * c.width, life: 1, decay: 0.0008 + Math.random() * 0.002, op: 0.15 + Math.random() * 0.3 };
       if (themeId === "arctic") return { ...b, y: -10, sz: 1.5 + Math.random() * 3, vx: (Math.random() - .5) * 1.2, vy: .5 + Math.random() * 1.2 };
       if (themeId === "amazon") return { ...b, y: Math.random() * c.height, sz: 1 + Math.random() * 2.5, vx: (Math.random() - .5) * .4, vy: -.2 - Math.random() * .4, op: .25 + Math.random() * .4 };
       if (themeId === "savanna") return { ...b, y: Math.random() * c.height, sz: 1 + Math.random() * 2.5, vx: .6 + Math.random() * 1.5, vy: (Math.random() - .5) * .3 };
+      if (themeId === "ocean") return { ...b, y: Math.random() * c.height, sz: 1 + Math.random() * 2, vx: (Math.random() - .5) * .3, vy: -.15 - Math.random() * .3, op: .2 + Math.random() * .35 };
       return { ...b, y: c.height + 10, sz: 1 + Math.random() * 2, vx: (Math.random() - .5) * .5, vy: -.3 - Math.random() * .6 };
     };
-    pts.current = Array.from({ length: count }, mk);
+    const pts = Array.from({ length: 35 }, mk);
     const draw = () => {
       ctx.clearRect(0, 0, c.width, c.height);
-      for (const p of pts.current) {
+      for (const p of pts) {
         p.x += p.vx; p.y += p.vy; p.life -= p.decay;
         if (p.life <= 0) Object.assign(p, mk());
-        ctx.globalAlpha = p.life * p.op; ctx.fillStyle = theme.particle; ctx.shadowBlur = 0; ctx.shadowColor = "transparent";
-        if (themeId === "amazon") { ctx.shadowColor = theme.particle; ctx.shadowBlur = 10; }
-        if (themeId === "savanna") { ctx.fillRect(p.x, p.y, p.sz * 2, p.sz * .6); }
+        ctx.globalAlpha = p.life * p.op; ctx.fillStyle = theme.particle;
+        if (themeId === "savanna") ctx.fillRect(p.x, p.y, p.sz * 2, p.sz * .6);
         else { ctx.beginPath(); ctx.arc(p.x, p.y, p.sz, 0, Math.PI * 2); ctx.fill(); }
       }
-      ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
       anim.current = requestAnimationFrame(draw);
     };
     draw();
@@ -236,14 +265,7 @@ function Atmosphere({ themeId }) {
 
 function Section({ themeId, children, style = {} }) {
   const theme = BIOME_THEMES[themeId] || BIOME_THEMES.hero;
-  const ref = useRef(null);
-  const [vis, setVis] = useState(false);
-  useEffect(() => {
-    if (!ref.current) return;
-    const obs = new IntersectionObserver(e => { if (e[0].isIntersecting) setVis(true); }, { threshold: 0.02 });
-    obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
+  const [ref, vis] = useInView(0.02);
   return (
     <section ref={ref} data-theme={themeId} style={{
       position: "relative", overflow: "hidden", minHeight: 200,
@@ -258,243 +280,339 @@ function Section({ themeId, children, style = {} }) {
   );
 }
 
-/* ───── Cursor ───── */
-
-function Cursor() {
-  const outerRef = useRef(null);
-  const dotRef = useRef(null);
-  const mouse = useRef({ x: 0, y: 0 });
-  const pos = useRef({ x: 0, y: 0 });
-  const [hovering, setHovering] = useState(false);
-  useEffect(() => {
-    const onMove = (e) => { mouse.current = { x: e.clientX, y: e.clientY };
-      if (dotRef.current) { dotRef.current.style.left = e.clientX + "px"; dotRef.current.style.top = e.clientY + "px"; } };
-    const loop = () => {
-      pos.current.x += (mouse.current.x - pos.current.x) * 0.12;
-      pos.current.y += (mouse.current.y - pos.current.y) * 0.12;
-      if (outerRef.current) { outerRef.current.style.left = pos.current.x + "px"; outerRef.current.style.top = pos.current.y + "px"; }
-      requestAnimationFrame(loop);
-    };
-    document.addEventListener("mousemove", onMove); loop();
-    const addH = () => setHovering(true), rmH = () => setHovering(false);
-    const obs = new MutationObserver(() => {
-      document.querySelectorAll(".cc,.pc,.glitch,[data-hover],.exp-card").forEach(el => {
-        el.removeEventListener("mouseenter", addH); el.removeEventListener("mouseleave", rmH);
-        el.addEventListener("mouseenter", addH); el.addEventListener("mouseleave", rmH);
-      });
-    });
-    obs.observe(document.body, { childList: true, subtree: true });
-    return () => { document.removeEventListener("mousemove", onMove); obs.disconnect(); };
-  }, []);
+function Tag({ children, color = RED }) {
   return (
-    <>
-      <div ref={outerRef} style={{ position: "fixed", pointerEvents: "none", zIndex: 10000, transform: "translate(-50%,-50%)",
-        width: hovering ? 55 : 20, height: hovering ? 55 : 20,
-        border: `2px solid ${RED}`, borderRadius: "50%", mixBlendMode: "difference",
-        background: hovering ? "rgba(227,0,15,0.08)" : "transparent",
-        transition: "width .25s, height .25s, background .25s" }} />
-      <div ref={dotRef} style={{ position: "fixed", pointerEvents: "none", zIndex: 10001, transform: "translate(-50%,-50%)",
-        width: 5, height: 5, background: RED, borderRadius: "50%" }} />
-    </>
-  );
-}
-
-/* ───── Biome / Skill Grid ───── */
-
-function CardGrid({ items, color, unlockedList }) {
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(clamp(90px, 20vw, 120px), 1fr))", gap: "clamp(8px, 2vw, 14px)" }}>
-      {items.map((item, i) => <Card key={item.id} item={item} color={color} idx={i} unlockedList={unlockedList} />)}
+    <div style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(9px,1vw,11px)", letterSpacing: 6, color, marginBottom: 20, textAlign: "center" }}>
+      {children}<div style={{ width: 40, height: 2, background: color, margin: "14px auto 0" }} />
     </div>
   );
 }
 
-function BiomeHeader({ biome, caughtCount }) {
+function Reveal({ children, delay = 0, style = {} }) {
+  const [ref, vis] = useInView(0.15);
   return (
-    <div style={{ marginBottom: 20 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-        <span style={{ fontSize: "clamp(24px, 5vw, 32px)" }}>{biome.icon}</span>
-        <div style={{ flex: 1 }}>
-          <div className="glitch" data-hover style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(30px,6vw,50px)", letterSpacing: 4, color: "white", lineHeight: 1 }}>{biome.name}</div>
-          <div style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(7px, 1.5vw, 9px)", letterSpacing: 2, color: `${biome.color}80` }}>BIOM · LEVEL {BIOMES.indexOf(biome) + 1}</div>
+    <div ref={ref} style={{ opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(20px)",
+      transition: `opacity 0.6s ease ${delay}s, transform 0.6s ease ${delay}s`, ...style }}>
+      {children}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EXPEDITION PHOTO CARD
+   ═══════════════════════════════════════════════════════════════ */
+function ExpCard({ photo, idx }) {
+  const [flipped, setFlipped] = useState(false);
+  return (
+    <div className="exp-card" onClick={() => setFlipped(!flipped)} style={{
+      flex: "1 1 0", minWidth: 0, maxWidth: 140, perspective: 800, cursor: "pointer",
+    }}>
+      <div style={{ width: "100%", aspectRatio: "3/4", position: "relative", transformStyle: "preserve-3d",
+        transition: "transform 0.6s cubic-bezier(0.4,0,0.2,1)", transform: flipped ? "rotateY(180deg)" : "none" }}>
+        {/* Front — photo (gradient fallback) */}
+        <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", borderRadius: 8, overflow: "hidden",
+          border: "1px solid rgba(255,255,255,0.08)", background: photo.grad }}>
+          <img src={photo.src} alt={photo.label} style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }}
+            onError={e => { e.target.style.display = "none"; }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 50%)" }} />
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ fontSize: 32, opacity: 0.15 }}>{photo.icon}</span>
+          </div>
+          <div style={{ position: "absolute", top: 8, right: 8, width: 5, height: 5, borderRadius: "50%", background: RED, boxShadow: `0 0 6px ${RED}` }} />
+          <div style={{ position: "absolute", bottom: 8, left: 8, fontFamily: "'Bebas Neue',sans-serif", fontSize: 11, letterSpacing: 2, color: "rgba(255,255,255,0.7)", textShadow: "0 1px 4px rgba(0,0,0,0.8)" }}>{photo.label}</div>
         </div>
-        <div>
-          <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(24px, 5vw, 32px)", color: biome.color, letterSpacing: 2 }}>{caughtCount}</span>
-          <span style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(9px, 1.5vw, 11px)", color: "rgba(255,255,255,.2)" }}>/{biome.creatures.length}</span>
+        {/* Back */}
+        <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", transform: "rotateY(180deg)", borderRadius: 8,
+          background: photo.grad, border: `1px solid ${photo.color}40`,
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6 }}>
+          <div style={{ position: "absolute", inset: 0, opacity: 0.06, borderRadius: 8,
+            background: `repeating-linear-gradient(0deg, transparent, transparent 3px, ${photo.color} 3px, ${photo.color} 4px)` }} />
+          <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(14px,2.5vw,22px)", letterSpacing: 4, color: photo.color, position: "relative" }}>{photo.label}</div>
+          <div style={{ width: 16, height: 1.5, background: photo.color, opacity: 0.5 }} />
+          <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 7, letterSpacing: 2, color: "rgba(255,255,255,0.3)" }}>EXPEDITION</div>
         </div>
-      </div>
-      <div style={{ height: 3, borderRadius: 2, background: "rgba(255,255,255,.04)", overflow: "hidden" }}>
-        <div style={{ width: `${(caughtCount / biome.creatures.length) * 100}%`, height: "100%", borderRadius: 2, background: `linear-gradient(90deg, ${biome.color}, ${biome.color}aa)`, boxShadow: `0 0 10px ${biome.color}40` }} />
       </div>
     </div>
   );
 }
 
-/* ───── Main App ───── */
+/* ═══════════════════════════════════════════════════════════════
+   CATCH CARD ANIMATION
+   ═══════════════════════════════════════════════════════════════ */
+function CatchCard({ animal, index }) {
+  const [ref, vis] = useInView(0.3);
+  const r = RARITY[animal.rarity];
+  return (
+    <div ref={ref} style={{ display: "flex", justifyContent: "center" }}>
+      <div style={{ position: "relative", width: 240 }}>
+        <div style={{ position: "absolute", left: 0, right: 0, height: 2, top: 0, opacity: 0, pointerEvents: "none", zIndex: 10,
+          background: `linear-gradient(90deg, transparent, ${r.color}, transparent)`,
+          ...(vis ? { animation: "scanAnim 0.4s 0.15s ease-out forwards" } : {}) }} />
+        <div style={{ position: "absolute", inset: 0, background: r.color, opacity: 0, pointerEvents: "none", borderRadius: 12,
+          ...(vis ? { animation: "flashBang 0.35s 0.15s ease-out forwards" } : {}) }} />
+        <div style={{ position: "absolute", top: -40, left: "50%", transform: "translateX(-50%)", width: 160, height: 80,
+          borderRadius: "50%", filter: "blur(40px)", background: r.glow, opacity: 0, pointerEvents: "none",
+          ...(vis ? { animation: "glowIn 2s 0.25s ease-out forwards" } : {}) }} />
+        <div style={{ background: "rgba(10,10,16,0.97)", border: "1px solid #1a1a2e", borderRadius: 12, overflow: "hidden",
+          opacity: 0, transform: "scale(0.88) translateY(12px)",
+          ...(vis ? { animation: "catchPop 0.5s 0.2s cubic-bezier(0.34,1.56,0.64,1) forwards" } : {}) }}>
+          <div style={{ padding: "4px 0", textAlign: "center", background: r.color, color: "#000",
+            fontFamily: "'JetBrains Mono',monospace", fontSize: 7, letterSpacing: 3 }}>{r.label}</div>
+          <div style={{ padding: "14px 16px 10px", display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ width: 48, height: 48, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center",
+              position: "relative", flexShrink: 0, background: `${r.color}12`, border: `1px solid ${r.color}1a`,
+              opacity: 0, ...(vis ? { animation: "iconBounce 0.6s 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards" } : {}) }}>
+              <div style={{ position: "absolute", inset: -3, borderRadius: 15, border: `1.5px solid ${r.color}`, borderTopColor: "transparent",
+                opacity: 0, ...(vis ? { animation: "ringReveal 0.4s 0.65s ease-out forwards, ringSpin 3s 0.65s linear infinite" } : {}) }} />
+              <div style={{ position: "absolute", inset: 0, borderRadius: 12, background: r.glow, opacity: 0,
+                ...(vis ? { animation: "iconPulse 2.5s 0.8s ease-out infinite" } : {}) }} />
+              <span style={{ fontSize: 26 }}>{animal.icon}</span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 7, letterSpacing: 2, color: "#5a5a7a",
+                opacity: 0, ...(vis ? { animation: "fadeUp 0.3s 0.55s ease-out forwards" } : {}) }}>NEW SPECIES FOUND</div>
+              <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: 1, lineHeight: 1.1, color: r.accent,
+                opacity: 0, ...(vis ? { animation: "fadeUp 0.35s 0.6s ease-out forwards" } : {}) }}>{animal.name}</div>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 9, color: "#5a5a7a", marginTop: 2,
+                opacity: 0, ...(vis ? { animation: "fadeUp 0.3s 0.7s ease-out forwards" } : {}) }}>↗ {animal.location}</div>
+            </div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px 10px",
+            borderTop: "1px solid #12121e", fontFamily: "'JetBrains Mono',monospace", fontSize: 9,
+            opacity: 0, ...(vis ? { animation: "fadeUp 0.3s 0.8s ease-out forwards" } : {}) }}>
+            <span style={{ color: "#3a3a5a", letterSpacing: 2 }}>100WILD</span>
+            <span style={{ color: "#3a3a5a" }}>{animal.ep}</span>
+            <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 18 }}>
+              <span style={{ color: r.accent }}>{String(index + 1).padStart(2, "0")}</span>
+              <span style={{ color: "#3a3a5a", fontSize: 13 }}>/100</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
+/* ═══════════════════════════════════════════════════════════════
+   MAIN APP
+   ═══════════════════════════════════════════════════════════════ */
 function App() {
   const [scrollY, setScrollY] = useState(0);
   const [currentTheme, setCurrentTheme] = useState("hero");
+
   useEffect(() => {
     const fn = () => setScrollY(window.scrollY);
     window.addEventListener("scroll", fn, { passive: true });
     return () => window.removeEventListener("scroll", fn);
   }, []);
+
   useEffect(() => {
     const obs = new IntersectionObserver(e => {
       e.forEach(en => { if (en.isIntersecting && en.target.dataset.theme) setCurrentTheme(en.target.dataset.theme); });
     }, { threshold: 0.3 });
-    const t = setTimeout(() => { document.querySelectorAll("[data-theme]").forEach(el => obs.observe(el)); }, 200);
+    const t = setTimeout(() => document.querySelectorAll("[data-theme]").forEach(el => obs.observe(el)), 200);
     return () => { clearTimeout(t); obs.disconnect(); };
   }, []);
+
   const progress = Math.min((scrollY / Math.max(document.documentElement.scrollHeight - window.innerHeight, 1)) * 100, 100) || 0;
   const aT = BIOME_THEMES[currentTheme] || BIOME_THEMES.hero;
-  const isMobile = typeof window !== "undefined" && window.matchMedia("(hover: none)").matches;
 
   return (
-    <div style={{ background: DARK, minHeight: "100vh", cursor: isMobile ? "auto" : "none" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
-        @keyframes fadeUp{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes cardPop{from{opacity:0;transform:scale(.85) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
-        @keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
-        @keyframes glitchShake{0%{transform:translate(0)}20%{transform:translate(-3px,2px)}40%{transform:translate(3px,-2px)}60%{transform:translate(-2px,1px)}80%{transform:translate(2px,-1px)}100%{transform:translate(0)}}
-        .cc{transition:transform .3s}.cc:hover{transform:scale(1.04)}
-        .pc{transition:all .4s!important}.pc:hover{border-color:rgba(227,0,15,.25)!important;background:rgba(227,0,15,.04)!important;transform:translateY(-4px)!important}
-        .pc:hover .pl{transform:scaleX(1)!important}
-        .glitch{display:block;position:relative;transition:text-shadow .3s}
-        .glitch:hover{animation:glitchShake .3s;text-shadow:3px 0 ${RED},-3px 0 rgba(0,255,255,.4)!important}
-        .exp-card{transition:transform .3s}.exp-card:hover>div{transform:translateY(-4px)!important;box-shadow:0 8px 30px rgba(0,0,0,.5)!important}
-        @media(hover:none){.cursor-wrap{display:none!important}body{cursor:auto!important}}
-      `}</style>
-
-      {!isMobile && <div className="cursor-wrap"><Cursor /></div>}
+    <div style={{ background: DARK, minHeight: "100vh", color: "white", fontFamily: "'DM Sans',sans-serif" }}>
+      <style>{styles}</style>
 
       {/* Progress bar */}
       <div style={{ position: "fixed", top: 0, left: 0, height: 3, zIndex: 9999, width: `${progress}%`,
         background: `linear-gradient(90deg, ${aT.accent}, ${aT.particle})`, boxShadow: `0 0 14px ${aT.accent}80`,
         transition: "background 0.8s, box-shadow 0.8s" }} />
 
-      {/* ═══ HERO ═══ */}
-      <section data-theme="hero" style={{
-        minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-        position: "relative", overflow: "hidden",
-        background: `radial-gradient(ellipse at 30% 40%, rgba(227,0,15,0.06), ${DARK})`,
-      }}>
+      {/* ═══ 1. HERO — THE HOOK ═══ */}
+      <section data-theme="hero" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
+        position: "relative", overflow: "hidden", background: `radial-gradient(ellipse at 30% 40%, rgba(227,0,15,0.06), ${DARK})` }}>
         <Atmosphere themeId="hero" />
-        <div style={{ textAlign: "center", position: "relative", zIndex: 2, padding: "40px 24px" }}>
+        <div style={{ textAlign: "center", position: "relative", zIndex: 2, padding: "40px 24px", maxWidth: 900 }}>
           <div style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(9px,1.1vw,12px)", letterSpacing: 7, color: RED, marginBottom: 24, opacity: 0, animation: "fadeUp .8s ease .3s forwards" }}>
-            RED BULL · REZDAR
+            RED BULL × REVOLUTION RACE × REZDAR
             <div style={{ width: 40, height: 2, background: RED, margin: "14px auto 0" }} />
           </div>
           <div style={{ fontFamily: "'Bebas Neue',sans-serif", lineHeight: .85, opacity: 0, animation: "fadeUp 1s ease .6s forwards" }}>
-            <div className="glitch" data-hover style={{ fontSize: "clamp(100px,20vw,280px)", color: "white", letterSpacing: -5 }}>100</div>
-            <div className="glitch" data-hover style={{ fontSize: "clamp(90px,18vw,260px)", color: RED, letterSpacing: 8, marginTop: -15, textShadow: "0 0 80px rgba(227,0,15,.15)" }}>WILD</div>
+            <div className="glitch" style={{ fontSize: "clamp(100px,20vw,280px)", color: "white", letterSpacing: -5 }}>100</div>
+            <div className="glitch" style={{ fontSize: "clamp(90px,18vw,260px)", color: RED, letterSpacing: 8, marginTop: -15, textShadow: "0 0 80px rgba(227,0,15,.15)" }}>WILD</div>
           </div>
-          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(10px,1.2vw,14px)", color: "rgba(232,228,223,.5)", marginTop: 30, lineHeight: 1.8, letterSpacing: 1, opacity: 0, animation: "fadeUp .8s ease 1s forwards" }}>
-            Extrema biomer. Riktiga expeditioner.<br/>Varje destination en level.
+          {/* THE ONE-LINER */}
+          <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: "clamp(15px,1.6vw,20px)", color: "rgba(255,255,255,.65)", marginTop: 35, lineHeight: 1.7, fontWeight: 300, opacity: 0, animation: "fadeUp .8s ease 1s forwards", maxWidth: 600, margin: "35px auto 0" }}>
+            En expeditionsserie genom världens mest extrema miljöer.<br/>
+            <strong style={{ color: "white", fontWeight: 600 }}>Målet: dokumentera 100 vilda arter — öga mot öga.</strong>
           </p>
-          <div style={{ display: "flex", justifyContent: "center", gap: "clamp(30px,6vw,70px)", marginTop: 55, opacity: 0, animation: "fadeUp .8s ease 1.3s forwards" }}>
-            {[
-              { val: caughtCount, max: 100, label: "ARTER", color: RED },
-              { val: 3, max: 12, label: "BIOMES", color: "#7ec8e3" },
-              { val: unlockedCount, max: totalSkills, label: "SKILLS", color: "#ff9800" },
-            ].map((r, i) => (
-              <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-                <Ring pct={r.val / r.max} color={r.color} size={68} stroke={3}>
-                  <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, color: r.color, letterSpacing: 1 }}>{r.val}</span>
-                </Ring>
-                <span style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(7px,.8vw,9px)", letterSpacing: 3, color: "rgba(232,228,223,.3)" }}>{r.label}</span>
-              </div>
-            ))}
-          </div>
-          <div style={{ marginTop: 70, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, opacity: 0, animation: "fadeUp .6s ease 1.8s forwards" }}>
+          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(10px,1vw,13px)", color: "rgba(255,255,255,.3)", marginTop: 16, letterSpacing: 1, opacity: 0, animation: "fadeUp .8s ease 1.2s forwards" }}>
+            Pokémon möter Bear Grylls. Byggt som ett spel. Filmat på riktigt.
+          </p>
+          <div style={{ marginTop: 50, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, opacity: 0, animation: "fadeUp .6s ease 1.5s forwards" }}>
             <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 8, letterSpacing: 3, color: "#555" }}>SCROLLA</span>
             <div style={{ width: 1, height: 35, background: `linear-gradient(to bottom, ${RED}, transparent)`, animation: "pulse 2s ease infinite" }} />
           </div>
         </div>
       </section>
 
-      {/* ═══ FORMAT ═══ */}
-      <Section themeId="format" style={{ minHeight: "auto" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 50 }}>
-            <div style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(9px,1vw,11px)", letterSpacing: 6, color: RED, marginBottom: 30 }}>
-              FORMATET<div style={{ width: 40, height: 2, background: RED, margin: "14px auto 0" }} />
-            </div>
-            <div style={{ fontFamily: "'Bebas Neue',sans-serif", lineHeight: .9 }}>
-              <div className="glitch" data-hover style={{ fontSize: "clamp(50px,10vw,140px)", color: "white", letterSpacing: 2 }}>POKÉMON X</div>
-              <div className="glitch" data-hover style={{ fontSize: "clamp(50px,10vw,140px)", color: RED, letterSpacing: 3, textShadow: `0 0 60px rgba(227,0,15,.2)` }}>BEAR GRYLLS</div>
-            </div>
-            <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: "clamp(13px,1.2vw,17px)", color: "rgba(232,228,223,.4)", lineHeight: 1.8, maxWidth: 500, margin: "35px auto 0" }}>
-              Varje avsnitt är ett nytt level — nya biomer, nya utmaningar, nya arter att upptäcka och dokumentera i verkligheten.
-            </p>
-          </div>
-          <div style={{ display: "flex", gap: "clamp(6px, 1.5vw, 12px)", overflow: "hidden" }}>
-            {EXPEDITION_PHOTOS.map((p, i) => <ExpCard key={i} photo={p} idx={i} />)}
-          </div>
-        </div>
-      </Section>
-
-      {/* ═══ 3 BIOMES ═══ */}
-      {BIOMES.map((biome) => {
-        const caught = biome.creatures.filter(c => CAUGHT_CREATURES.includes(c.name)).length;
+      {/* ═══ 2. MILJÖERNA — BIOME SHOWCASE ═══ */}
+      {BIOMES_SHOWCASE.map((biome, i) => {
+        const caught = biome.creatures.filter(c => c.caught).length;
         return (
-          <Section key={biome.id} themeId={biome.id}>
-            <div style={{ maxWidth: 900, margin: "0 auto" }}>
-              <BiomeHeader biome={biome} caughtCount={caught} />
-              <CardGrid items={biome.creatures} color={biome.color} unlockedList={CAUGHT_CREATURES} />
+        <Section key={biome.name} themeId={biome.themeId}>
+          <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: "clamp(20px,4vw,40px)", alignItems: "start" }} className="biome-layout">
+              {/* Photo */}
+              <Reveal>
+                <div style={{ borderRadius: 12, overflow: "hidden", border: `1px solid ${biome.color}20`, aspectRatio: "3/4", position: "relative", background: biome.grad }}>
+                  <img src={biome.photo} alt={biome.name} style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }}
+                    onError={e => { e.target.style.display = "none"; }} />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)" }} />
+                  <div style={{ position: "absolute", bottom: 12, left: 12, right: 12 }}>
+                    <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 14, letterSpacing: 3, color: biome.color }}>{biome.name}</div>
+                    <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 8, color: "rgba(255,255,255,0.4)", letterSpacing: 1, marginTop: 2 }}>{biome.terrain}</div>
+                  </div>
+                  <div style={{ position: "absolute", top: 10, right: 10, width: 6, height: 6, borderRadius: "50%", background: RED, boxShadow: `0 0 8px ${RED}` }} />
+                </div>
+              </Reveal>
+              {/* Info */}
+              <div>
+                <Reveal>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
+                    <span style={{ fontSize: 28 }}>{biome.icon}</span>
+                    <div>
+                      <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 8, letterSpacing: 3, color: `${biome.color}80` }}>BIOM {String(i + 1).padStart(2, "0")} · LEVEL {i + 1}</div>
+                      <div className="glitch" style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(40px,7vw,72px)", color: "white", letterSpacing: 4, lineHeight: 1 }}>{biome.name}</div>
+                    </div>
+                  </div>
+                </Reveal>
+                <Reveal delay={0.1}>
+                  <p style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(18px,2.5vw,28px)", color: biome.color, letterSpacing: 2, marginBottom: 10 }}>{biome.tagline}</p>
+                </Reveal>
+                <Reveal delay={0.15}>
+                  <p style={{ fontSize: "clamp(13px,1.2vw,16px)", color: "rgba(255,255,255,.4)", lineHeight: 1.8, marginBottom: 20 }}>{biome.desc}</p>
+                </Reveal>
+                <Reveal delay={0.2}>
+                  <div style={{ marginBottom: 20 }}>
+                    <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 8, letterSpacing: 3, color: "rgba(255,255,255,.2)", marginBottom: 8 }}>FAROR</div>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {biome.dangers.map(d => (
+                        <span key={d} style={{ padding: "4px 10px", borderRadius: 6, background: `${biome.color}10`, border: `1px solid ${biome.color}20`,
+                          fontFamily: "'Space Mono',monospace", fontSize: 9, color: biome.color, letterSpacing: 1 }}>{d}</span>
+                      ))}
+                    </div>
+                  </div>
+                </Reveal>
+                {/* Creature cards inline */}
+                <Reveal delay={0.25}>
+                  <div style={{ marginTop: 4 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                      <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 8, letterSpacing: 3, color: "rgba(255,255,255,.2)" }}>ARTER</div>
+                      <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,.06)" }} />
+                      <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, color: biome.color }}>{caught}<span style={{ color: "rgba(255,255,255,.15)" }}>/{biome.creatures.length}</span></span>
+                    </div>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {biome.creatures.map((c, ci) => (
+                        <div key={ci} className="cc" style={{ width: 44, height: 44, borderRadius: 8,
+                          background: c.mystery ? "#0e0e14" : c.caught ? `${biome.color}10` : "#0c0c12",
+                          border: c.caught ? `1px solid ${biome.color}40` : "1px solid rgba(255,255,255,0.04)",
+                          display: "flex", alignItems: "center", justifyContent: "center", position: "relative",
+                          boxShadow: c.caught ? `0 1px 8px ${biome.color}15` : "none",
+                          animation: `cardPop 0.3s ease ${ci * 0.03}s both` }}>
+                          <span style={{ fontSize: c.mystery ? 12 : 18, filter: !c.caught && !c.mystery ? "grayscale(1) brightness(0.2)" : "none" }}>{c.icon}</span>
+                          {c.caught && <div style={{ position: "absolute", bottom: -1, right: -1, width: 8, height: 8, borderRadius: "50%", background: biome.color, border: "1px solid #0a0a0a" }} />}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </Reveal>
+              </div>
             </div>
-          </Section>
+          </div>
+        </Section>
         );
       })}
 
-      {/* ═══ SKILLS ═══ */}
+      {/* ═══ 3. SKILLS ═══ */}
       <Section themeId="skills">
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <Tag>EXPEDITION SKILLS</Tag>
           <div style={{ textAlign: "center", marginBottom: 50 }}>
-            <div style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(9px,1vw,11px)", letterSpacing: 6, color: RED, marginBottom: 20 }}>
-              EXPEDITION SKILLS<div style={{ width: 40, height: 2, background: RED, margin: "14px auto 0" }} />
-            </div>
-            <div className="glitch" data-hover style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(40px,8vw,90px)", color: "white", letterSpacing: 3 }}>SKILL TREE</div>
-          </div>
-          {SKILL_TREES.map((tree, ti) => {
-            const unlocked = tree.skills.filter(s => UNLOCKED_SKILLS.includes(s.name)).length;
-            return (
-              <div key={tree.id} style={{ marginBottom: ti < SKILL_TREES.length - 1 ? 50 : 0 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-                  <span style={{ fontSize: "clamp(24px, 5vw, 32px)" }}>{tree.icon}</span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(24px,5vw,40px)", letterSpacing: 4, color: "white", lineHeight: 1 }}>{tree.name}</div>
-                    <div style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(7px, 1.5vw, 9px)", letterSpacing: 2, color: `${tree.color}80` }}>SKILL TREE · TIER {ti + 1}</div>
-                  </div>
-                  <div>
-                    <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(24px, 5vw, 32px)", color: tree.color, letterSpacing: 2 }}>{unlocked}</span>
-                    <span style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(9px, 1.5vw, 11px)", color: "rgba(255,255,255,.2)" }}>/{tree.skills.length}</span>
-                  </div>
-                </div>
-                <div style={{ height: 3, borderRadius: 2, background: "rgba(255,255,255,.04)", marginBottom: 20, overflow: "hidden" }}>
-                  <div style={{ width: `${(unlocked / tree.skills.length) * 100}%`, height: "100%", borderRadius: 2, background: `linear-gradient(90deg, ${tree.color}, ${tree.color}aa)`, boxShadow: `0 0 10px ${tree.color}40` }} />
-                </div>
-                <CardGrid items={tree.skills} color={tree.color} unlockedList={UNLOCKED_SKILLS} />
+            <div className="glitch" style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(48px,9vw,100px)", color: "white", letterSpacing: 3, lineHeight: 0.9 }}>SKILL TREE</div>
+            <p style={{ fontSize: "clamp(13px,1.2vw,16px)", color: "rgba(255,255,255,.35)", marginTop: 16, maxWidth: 480, margin: "16px auto 0", lineHeight: 1.7 }}>
+              Varje expedition kräver nya färdigheter. Rezdar bygger sin arsenal — från dykning till wingsuit. Nya skills låser upp nya expeditioner.
+            </p>
+            <div style={{ display: "flex", justifyContent: "center", gap: 40, marginTop: 30 }}>
+              <Ring pct={totalActive / 15} color={RED} size={60}><span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, color: RED }}>{totalActive}</span></Ring>
+              <div style={{ textAlign: "left", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, color: "white" }}>{totalActive}/15 SKILLS</div>
+                <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 9, color: "rgba(255,255,255,.25)", letterSpacing: 2 }}>UNLOCKED</div>
               </div>
-            );
-          })}
+            </div>
+          </div>
+          <div className="skill-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+            {SKILL_CATEGORIES.map((cat, ci) => {
+              const unlocked = cat.skills.filter(s => s.active).length;
+              return (
+                <Reveal key={cat.name} delay={ci * 0.1} style={{ background: "#0c0c12", border: "1px solid #1a1a2e", borderRadius: 14, padding: 20 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                    <span style={{ fontSize: 24 }}>{cat.icon}</span>
+                    <div>
+                      <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: 3, color: "white" }}>{cat.name}</div>
+                      <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 8, color: `${cat.color}80`, letterSpacing: 2 }}>TIER {ci + 1} · {unlocked}/{cat.skills.length}</div>
+                    </div>
+                  </div>
+                  <div style={{ height: 2, borderRadius: 1, background: "rgba(255,255,255,.04)", marginBottom: 14, overflow: "hidden" }}>
+                    <div style={{ "--fill": `${(unlocked / cat.skills.length) * 100}%`, width: 0, height: "100%", background: cat.color, borderRadius: 1, animation: "barFill 1s 0.5s ease forwards" }} />
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(70px, 1fr))", gap: 8 }}>
+                    {cat.skills.map((s, si) => (
+                      <div key={si} className="cc" style={{ aspectRatio: "1", borderRadius: 10,
+                        background: s.mystery ? "#111" : s.active ? `${cat.color}15` : "#0f0f15",
+                        border: s.active ? `1.5px solid ${cat.color}` : "1px solid rgba(255,255,255,0.04)",
+                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4,
+                        boxShadow: s.active ? `0 2px 16px ${cat.color}20` : "none",
+                        animation: `cardPop 0.4s ease ${si * 0.05}s both` }}>
+                        <span style={{ fontSize: 20, filter: !s.active && !s.mystery ? "grayscale(1) brightness(0.25)" : "none" }}>{s.icon}</span>
+                        <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 8, letterSpacing: 1.5,
+                          color: s.mystery ? "rgba(255,255,255,.1)" : s.active ? "rgba(255,255,255,.8)" : "rgba(255,255,255,.15)" }}>
+                          {s.mystery ? "???" : s.active ? s.name.toUpperCase() : "LOCKED"}</span>
+                      </div>
+                    ))}
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
         </div>
       </Section>
 
-      {/* ═══ STATS ═══ */}
+
+      {/* ═══ 4. ANIMATION SYSTEM ═══ */}
+      <Section themeId="anim">
+        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <Tag color="#8b5cf6">BROADCAST GRAPHICS</Tag>
+          <div style={{ textAlign: "center", marginBottom: 40 }}>
+            <div className="glitch" style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(40px,8vw,80px)", color: "white", letterSpacing: 3, lineHeight: 0.9 }}>ENCOUNTER<br/>ANIMATION</div>
+            <p style={{ fontSize: "clamp(13px,1.2vw,16px)", color: "rgba(255,255,255,.35)", marginTop: 16, maxWidth: 500, margin: "16px auto 0", lineHeight: 1.7 }}>
+              Varje ny art triggar en animerad pop-up i realtid. Rarity-tiers skapar tittarengagemang — alla väntar på nästa Legendary.
+            </p>
+          </div>
+          <div className="catch-row" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+            {CATCH_DEMO.map((a, i) => <CatchCard key={i} animal={a} index={i} />)}
+          </div>
+        </div>
+      </Section>
+
+      {/* ═══ 6. STATS ═══ */}
       <Section themeId="stats" style={{ textAlign: "center" }}>
         <div>
-          <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 10, letterSpacing: 6, color: RED, marginBottom: 20 }}>
-            CONTENT CREATOR<div style={{ width: 40, height: 2, background: RED, margin: "14px auto 0" }} />
-          </div>
-          <div className="glitch" data-hover style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(55px,11vw,130px)", color: "white", letterSpacing: 5, lineHeight: .9 }}>REZDAR</div>
+          <Tag>CONTENT CREATOR</Tag>
+          <div className="glitch" style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(55px,11vw,130px)", color: "white", letterSpacing: 5, lineHeight: .9 }}>REZDAR</div>
           <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(65px,13vw,170px)", color: RED, letterSpacing: -2, lineHeight: .9 }}><Ctr target={750} suffix=".000" /></div>
-          <div style={{ display: "flex", justifyContent: "center", gap: "clamp(30px,7vw,90px)", marginTop: 50, padding: "28px 0", borderTop: "1px solid rgba(255,255,255,.05)", borderBottom: "1px solid rgba(255,255,255,.05)" }}>
-            {[{ l: "TIKTOK", v: 485 }, { l: "YOUTUBE", v: 200 }, { l: "INSTAGRAM", v: 70 }].map(s => (
+          <div className="stats-row" style={{ display: "flex", justifyContent: "center", gap: "clamp(30px,7vw,90px)", marginTop: 50, padding: "28px 0", borderTop: "1px solid rgba(255,255,255,.05)", borderBottom: "1px solid rgba(255,255,255,.05)" }}>
+            {[{ l: "TIKTOK", v: 486 }, { l: "YOUTUBE", v: 214 }, { l: "INSTAGRAM", v: 78 }].map(s => (
               <div key={s.l}>
-                <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(28px,5vw,58px)", color: RED, letterSpacing: 2 }}><Ctr target={s.v} suffix="K" /></div>
+                <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(28px,5vw,58px)", color: RED }}><Ctr target={s.v} suffix="K" /></div>
                 <div style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(7px,.9vw,10px)", letterSpacing: 4, color: "rgba(232,228,223,.4)", marginTop: 4 }}>{s.l}</div>
               </div>
             ))}
@@ -502,28 +620,59 @@ function App() {
         </div>
       </Section>
 
-      {/* ═══ CTA ═══ */}
+      {/* ═══ 7. BRAND FIT ═══ */}
+      <Section themeId="brand">
+        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <Tag>PARTNERSHIP</Tag>
+          <div style={{ textAlign: "center", marginBottom: 50 }}>
+            <div className="glitch" style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(40px,8vw,90px)", color: "white", letterSpacing: 3, lineHeight: 0.9 }}>BRAND FIT</div>
+            <p style={{ fontSize: "clamp(13px,1.2vw,16px)", color: "rgba(255,255,255,.35)", marginTop: 16, maxWidth: 500, margin: "16px auto 0", lineHeight: 1.7 }}>
+              100WILD är inte en reklamserie. Det är en äventyrsserie där varumärken syns i rätt kontext — naturligt, trovärdigt, i verkligheten.
+            </p>
+          </div>
+          <div className="brand-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+            {BRANDS.map((b, bi) => (
+              <Reveal key={b.name} delay={bi * 0.12} style={{ background: "#0c0c12", border: `1px solid ${b.color}18`, borderRadius: 14, padding: "28px 24px" }}>
+                <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(32px,5vw,48px)", color: b.color, letterSpacing: 3 }}>{b.name}</div>
+                <div style={{ fontFamily: "'Space Mono',monospace", fontSize: 8, letterSpacing: 3, color: "rgba(255,255,255,.2)", marginBottom: 20 }}>{b.tagline}</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {b.points.map((p, pi) => (
+                    <div key={pi} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                      <div style={{ width: 4, height: 4, borderRadius: "50%", background: b.color, marginTop: 7, flexShrink: 0 }} />
+                      <span style={{ fontSize: 13, color: "rgba(255,255,255,.45)", lineHeight: 1.7 }}>{p}</span>
+                    </div>
+                  ))}
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      {/* ═══ 8. CTA ═══ */}
       <Section themeId="cta" style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ textAlign: "center" }}>
           <div style={{ fontFamily: "'Bebas Neue',sans-serif", lineHeight: .85 }}>
-            <div className="glitch" data-hover style={{ fontSize: "clamp(70px,14vw,200px)", color: "white", letterSpacing: 3 }}>PRESS</div>
-            <div className="glitch" data-hover style={{ fontSize: "clamp(70px,14vw,200px)", color: RED, letterSpacing: 3 }}>START.</div>
+            <div className="glitch" style={{ fontSize: "clamp(70px,14vw,200px)", color: "white", letterSpacing: 3 }}>PRESS</div>
+            <div className="glitch" style={{ fontSize: "clamp(70px,14vw,200px)", color: RED, letterSpacing: 3 }}>START.</div>
           </div>
           <div style={{ width: 40, height: 3, background: RED, margin: "20px auto 0" }} />
-          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(10px,1.2vw,14px)", color: "rgba(232,228,223,.45)", marginTop: 30, letterSpacing: 1, lineHeight: 1.7 }}>Låt oss bygga Sveriges mest<br/>unika serie</p>
+          <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: "clamp(13px,1.3vw,17px)", color: "rgba(232,228,223,.45)", marginTop: 28, lineHeight: 1.7, maxWidth: 420, margin: "28px auto 0" }}>
+            Expeditionen är planerad. Publiken finns.<br/>Det enda som saknas är rätt partner.
+          </p>
         </div>
       </Section>
 
       {/* Footer */}
-      <div style={{ padding: "20px clamp(16px, 4vw, 40px)", background: DARK, borderTop: "1px solid rgba(255,255,255,.03)", display: "flex", justifyContent: "space-between" }}>
-        <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 12, letterSpacing: 3, color: RED, opacity: .5 }}>RED BULL</span>
+      <div style={{ padding: "20px clamp(16px,4vw,40px)", background: DARK, borderTop: "1px solid rgba(255,255,255,.03)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 12, letterSpacing: 3, color: RED, opacity: .5 }}>RED BULL × RVRC</span>
         <span style={{ fontFamily: "'Space Mono',monospace", fontSize: 8, letterSpacing: 2, color: "rgba(255,255,255,.15)" }}>100 WILD · 2026</span>
       </div>
     </div>
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 </script>
 </body>
 </html>
